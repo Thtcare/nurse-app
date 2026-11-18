@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Fall-Risk Assessment — Assessment Design Concepts</title>
+<style>
+  :root { color-scheme: light; --ink:#1d2d26; --muted:#6c7b73; --line:#e5eae6; --bg:#f2f4f2; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .page { max-width:1650px; margin:auto; padding:38px 28px 48px; }
+  .eyebrow { margin:0 0 9px; color:#66776e; font-size:11px; font-weight:850; letter-spacing:.14em; text-transform:uppercase; }
+  h1 { margin:0; font-size:clamp(28px,4vw,42px); letter-spacing:-.045em; line-height:1.08; }
+  .intro { max-width:820px; margin:12px 0 18px; color:#5f6e66; font-size:14px; line-height:1.55; }
+  .note { display:flex; align-items:flex-start; gap:9px; max-width:1050px; padding:12px 14px; border:1px solid #dce4de; border-radius:12px; background:#fff; color:#54645b; font-size:11px; line-height:1.5; }
+  .note b { color:#263a30; }
+  .designs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-top:25px; align-items:start; }
+  .design { min-width:0; }
+  .design-head { min-height:70px; padding:0 2px 10px; }
+  .design-head .num { margin:0 0 6px; color:#718078; font-size:10px; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
+  .design-head h2 { margin:0; font-size:17px; letter-spacing:-.025em; }
+  .design-head p { margin:5px 0 0; color:#738078; font-size:10px; }
+  .phone { position:relative; min-height:760px; overflow:hidden; border-radius:20px; box-shadow:0 14px 36px rgba(27,44,35,.12); }
+  .phone button { cursor:default; font:inherit; }
+  .top { display:flex; align-items:center; justify-content:space-between; }
+  .brand { display:flex; align-items:center; gap:7px; font-size:10px; font-weight:850; }
+  .brand-icon { display:grid; place-items:center; width:24px; height:24px; border-radius:8px; font-size:13px; }
+  .step { display:flex; align-items:center; gap:6px; font-size:9px; font-weight:750; }
+  .step .bubble { display:grid; place-items:center; width:20px; height:20px; border-radius:50%; font-size:9px; }
+  .screen-title { margin:20px 0 3px; font-size:20px; letter-spacing:-.04em; }
+  .screen-sub { margin:0; font-size:9px; }
+  .section-title { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:15px 0 8px; font-size:11px; font-weight:850; }
+  .section-title small { font-size:8px; font-weight:600; }
+  .fields { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .field { min-width:0; padding:8px 9px; border-radius:9px; }
+  .field label { display:block; margin-bottom:4px; font-size:7px; font-weight:850; letter-spacing:.07em; text-transform:uppercase; }
+  .field strong { display:block; overflow:hidden; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }
+  .risk-list { display:grid; gap:5px; }
+  .risk-item { display:flex; align-items:center; gap:7px; min-width:0; padding:7px 8px; border-radius:9px; }
+  .check { display:grid; place-items:center; flex:none; width:14px; height:14px; border:1px solid currentColor; border-radius:4px; font-size:10px; line-height:1; }
+  .unchecked .check { color:#b5c0b9; }
+  .risk-copy { min-width:0; font-size:8px; line-height:1.3; }
+  .risk-copy strong { margin-right:3px; font-size:8px; }
+  .risk-level { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; padding:9px 10px; border-radius:10px; }
+  .risk-level span:first-child { font-size:8px; font-weight:750; }
+  .risk-level strong { font-size:11px; }
+  .care-list { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .care { display:flex; align-items:center; gap:6px; min-height:30px; padding:6px 7px; border-radius:8px; font-size:8px; line-height:1.25; }
+  .care .check { width:13px; height:13px; }
+  .other-input { margin-top:6px; padding:7px 9px; border-radius:8px; font-size:8px; }
+  .review { display:flex; gap:7px; align-items:flex-start; margin-top:10px; padding:8px 9px; border-radius:9px; font-size:8px; line-height:1.4; }
+  .save { width:100%; margin-top:9px; padding:10px 12px; border:0; border-radius:10px; font-size:9px; font-weight:850; }
+  .time { margin-top:7px; text-align:center; font-size:8px; }
+  .tabbar { position:absolute; right:0; bottom:0; left:0; display:flex; justify-content:space-around; padding:9px 6px 11px; }
+  .tabbar span { min-width:43px; text-align:center; font-size:7px; }
+  .tabbar i { display:block; margin-bottom:3px; font-size:13px; font-style:normal; }
+
+  /* Concept 01: selected calm, structured visual style */
+  .calm { padding:17px 16px 55px; background:#f8f9f7; color:#20332b; }
+  .calm .brand-icon { background:#dcecdf; color:#316347; }
+  .calm .brand { color:#28533c; }
+  .calm .top { color:#6d7c73; }
+  .calm .step .bubble { background:#315f45; color:#fff; }
+  .calm .step { color:#617268; }
+  .calm .screen-sub,.calm .time { color:#78877e; }
+  .calm .patient { margin-top:13px; padding:10px; border:1px solid #e4ebe5; border-radius:12px; background:#fff; }
+  .calm .patient .fields { gap:6px; }
+  .calm .field { border:1px solid #edf0ed; background:#fafbfa; }
+  .calm .field label { color:#78867e; }
+  .calm .risk-item { border:1px solid #e8ece9; background:#fff; color:#485951; }
+  .calm .risk-item.selected { border-color:#e8c9be; background:#fff8f5; color:#77473d; }
+  .calm .risk-item.selected .check { border-color:#af5a49; background:#af5a49; color:#fff; }
+  .calm .risk-level { background:#ffebe7; color:#973f32; }
+  .calm .care { border:1px solid #e7ece8; background:#fff; color:#53635a; }
+  .calm .care .check { color:#477b57; border-color:#6f9a78; }
+  .calm .care.checked .check { background:#4b805a; color:#fff; }
+  .calm .other-input { border:1px dashed #d7dfd9; color:#7a867f; background:#f3f5f3; }
+  .calm .review { background:#edf4ee; color:#526d59; }
+  .calm .save { background:#315f45; color:#fff; }
+  .calm .tabbar { border-top:1px solid #e7ebe7; background:#fff; color:#89948d; }
+  .calm .tabbar span:nth-child(2) { color:#35694a; font-weight:850; }
+
+  /* Concept 02: dark, compact checklist */
+  .contrast { padding:17px 15px 55px; background:#142a30; color:#edf5f2; }
+  .contrast .top { color:#b7c9c4; }
+  .contrast .brand-icon { background:#254a4c; color:#8fe0bc; }
+  .contrast .brand { color:#eff7f4; }
+  .contrast .step .bubble { background:#83d6ad; color:#18342e; }
+  .contrast .step { color:#b4c9c4; }
+  .contrast .screen-sub,.contrast .time { color:#a2b8b2; }
+  .contrast .patient { margin-top:13px; padding:10px; border:1px solid #365159; border-radius:12px; background:#1b373e; }
+  .contrast .field { border:1px solid #355057; background:#203e44; }
+  .contrast .field label { color:#a8bfba; }
+  .contrast .risk-list { grid-template-columns:1fr 1fr; gap:5px; }
+  .contrast .risk-item { align-items:flex-start; min-height:47px; border:1px solid #345057; background:#1b373e; color:#d8e5e1; }
+  .contrast .risk-item.selected { border-color:#79534b; background:#493a3b; color:#ffccbc; }
+  .contrast .risk-item.selected .check { border-color:#ed927d; background:#ed927d; color:#23353a; }
+  .contrast .risk-copy { font-size:7px; }
+  .contrast .risk-copy strong { display:block; margin:0 0 2px; color:#9fc4b7; }
+  .contrast .risk-level { background:#573b3a; color:#ffb5a4; }
+  .contrast .care { border:1px solid #355057; background:#1b373e; color:#d4e3de; }
+  .contrast .care .check { border-color:#779b8c; }
+  .contrast .care.checked .check { border-color:#83d6ad; background:#83d6ad; color:#17352f; }
+  .contrast .other-input { border:1px dashed #466169; color:#b6c8c3; background:#1a353b; }
+  .contrast .review { background:#223f43; color:#bde2ce; }
+  .contrast .save { background:#83d6ad; color:#17352f; }
+  .contrast .tabbar { border-top:1px solid #365058; background:#11242a; color:#8da7a0; }
+  .contrast .tabbar span:nth-child(2) { color:#8fe0bc; font-weight:850; }
+
+  /* Concept 03: warm, spacious layout with Concept 03 bottom navigation */
+  .warm { padding:17px 16px 65px; background:#fff; color:#2c2b39; }
+  .warm:before { position:absolute; top:0; left:0; right:0; height:126px; background:#f1edf9; content:""; }
+  .warm > * { position:relative; }
+  .warm .top { color:#766b8e; }
+  .warm .brand { color:#55497a; }
+  .warm .brand-icon { background:#ded6f0; color:#564583; }
+  .warm .step .bubble { background:#65568f; color:#fff; }
+  .warm .step { color:#766b8e; }
+  .warm .patient { margin-top:16px; padding:11px; border:1px solid #e8e1f1; border-radius:15px; background:rgba(255,255,255,.9); }
+  .warm .field { border-radius:10px; background:#f8f7fb; }
+  .warm .field label { color:#827994; }
+  .warm .screen-sub,.warm .time { color:#827c90; }
+  .warm .risk-item { padding:8px 9px; border-radius:11px; background:#f8f7fa; color:#514d5f; }
+  .warm .risk-item.selected { background:#fff0eb; color:#884c40; }
+  .warm .risk-item.selected .check { border-color:#b65c4d; background:#b65c4d; color:#fff; }
+  .warm .risk-level { border-radius:12px; background:#fde9e5; color:#a9493e; }
+  .warm .care { min-height:34px; border-radius:10px; background:#f8f7fb; color:#5d596b; }
+  .warm .care .check { border-color:#82739f; }
+  .warm .care.checked .check { border-color:#65568f; background:#65568f; color:#fff; }
+  .warm .other-input { border:1px solid #e6e1ed; border-radius:10px; color:#827c90; background:#faf9fc; }
+  .warm .review { border-radius:11px; background:#f1edf9; color:#625780; }
+  .warm .save { background:#65568f; color:#fff; }
+  .warm .tabbar { border-top:1px solid #eeedf1; background:#fff; color:#8a8794; }
+  .warm .tabbar span:nth-child(2) { color:#5d4d86; font-weight:850; }
+
+  @media (max-width:1050px) { .page { padding:27px 19px 36px; } .designs { grid-template-columns:1fr; max-width:540px; margin:24px auto 0; gap:24px; } .design-head { min-height:auto; } }
+  @media (min-width:1051px) and (max-width:1280px) { .page { padding-right:18px; padding-left:18px; } .designs { gap:12px; } .phone { padding-right:12px; padding-left:12px; } .risk-copy { font-size:7px; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <p class="eyebrow">Assessment screen · Design exploration</p>
+  <h1>Three ways to assess, one patient at a time.</h1>
+  <p class="intro">Compare three phone-first layouts for a nurse completing the daily fall-risk assessment at the bedside. Concept 01 follows the calm, structured direction you selected. Concept 03 brings in the warm, spacious style and bottom navigation.</p>
+  <div class="note"><span aria-hidden="true">ⓘ</span><span><b>Fictional demo details only.</b> Mina Example and DEMO-001 are invented. Care-step names are placeholders for ward confirmation. The nurse can review all answers before saving; assessment time is filled with the current time when saved.</span></div>
+
+  <section class="designs" aria-label="Three assessment layout concepts">
+    <article class="design">
+      <header class="design-head"><p class="num">Concept 01 · Calm and structured</p><h2>Guided form</h2><p>Familiar field groups and a clear top-to-bottom flow.</p></header>
+      <div class="phone calm" aria-label="Calm and structured assessment preview">
+        <div class="top"><div class="brand"><span class="brand-icon">✳</span> Wardfall</div><div class="step"><span class="bubble">1</span> Assessment <span style="opacity:.55">/ Review</span></div></div>
+        <h3 class="screen-title">Daily assessment</h3><p class="screen-sub">Wednesday, 19 November · Signed in as N. Nurse</p>
+        <div class="patient"><div class="section-title" style="margin-top:0">Patient details <small>EDITABLE</small></div><div class="fields">
+          <div class="field"><label>Patient name</label><strong>Mina Example</strong></div><div class="field"><label>Hospital number</label><strong>DEMO-001</strong></div>
+          <div class="field"><label>Ward</label><strong>Cedar</strong></div><div class="field"><label>Bed</label><strong>01</strong></div>
+        </div></div>
+        <div class="section-title">Risk factors <small>Select all that apply</small></div>
+        <div class="risk-list">
+          <div class="risk-item selected"><span class="check">✓</span><span class="risk-copy"><strong>R1</strong>Over 65 and has fallen before</span></div>
+          <div class="risk-item unchecked"><span class="check"></span><span class="risk-copy"><strong>R2</strong>Confused, or awareness has changed</span></div>
+          <div class="risk-item unchecked"><span class="check"></span><span class="risk-copy"><strong>R3</strong>Problem with balance or walking</span></div>
+          <div class="risk-item selected"><span class="check">✓</span><span class="risk-copy"><strong>R4</strong>Poor eyesight</span></div>
+          <div class="risk-item unchecked"><span class="check"></span><span class="risk-copy"><strong>R5</strong>Medicines that raise fall risk</span></div>
+          <div class="risk-item unchecked"><span class="check"></span><span class="risk-copy"><strong>R6</strong>Urgent or frequent toilet needs</span></div>
+          <div class="risk-item unchecked"><span class="check"></span><span class="risk-copy"><strong>R7</strong>Lines or devices attached</span></div>
+        </div>
+        <div class="risk-level"><span>Calculated risk level</span><strong>High</strong></div>
+        <div class="section-title">Care steps done <small>Sample labels*</small></div>
+        <div class="care-list"><div class="care checked"><span class="check">✓</span>Common step 1*</div><div class="care"><span class="check"></span>Common step 2*</div></div>
+        <div class="care" style="margin-top:6px"><span class="check"></span>Other</div><div class="other-input">Enter other care step (optional)</div>
+        <div class="review"><span>✓</span><span>Next: review all answers before saving. Time will fill automatically on save.</span></div>
+        <button class="save">Review answers</button><div class="time">Assessment time: fills with current time on save</div>
+        <nav class="tabbar" aria-label="Assessment preview navigation"><span><i>⌂</i>Overview</span><span><i>＋</i>Assess</span><span><i>◷</i>History</span><span><i>○</i>Profile</span></nav>
+      </div>
+    </article>
+
+    <article class="design">
+      <header class="design-head"><p class="num">Concept 02 · High contrast</p><h2>Checklist focus</h2><p>Compact risk choices with a prominent calculated result.</p></header>
+      <div class="phone contrast" aria-label="High contrast assessment preview">
+        <div class="top"><div class="brand"><span class="brand-icon">✳</span> WARD / FALL</div><div class="step"><span class="bubble">1</span> OF 2</div></div>
+        <h3 class="screen-title">Assess patient</h3><p class="screen-sub">Cedar ward · Wed, 19 November · N. Nurse</p>
+        <div class="patient"><div class="section-title" style="margin-top:0">Patient details <small>CHANGE</small></div><div class="fields">
+          <div class="field"><label>Name</label><strong>Mina Example</strong></div><div class="field"><label>HN</label><strong>DEMO-001</strong></div>
+          <div class="field"><label>Ward</label><strong>Cedar</strong></div><div class="field"><label>Bed</label><strong>01</strong></div>
+        </div></div>
+        <div class="section-title">Tick every risk factor <small>2 selected</small></div>
+        <div class="risk-list">
+          <div class="risk-item selected"><span class="check">✓</span><span class="risk-copy"><strong>R1</strong>Over 65 and has fallen before</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R2</strong>Confused, or awareness has changed</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R3</strong>Problem with balance or walking</span></div>
+          <div class="risk-item selected"><span class="check">✓</span><span class="risk-copy"><strong>R4</strong>Poor eyesight</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R5</strong>Medicines that raise fall risk</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R6</strong>Urgent or frequent toilet needs</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R7</strong>Lines or devices attached</span></div>
+        </div>
+        <div class="risk-level"><span>R1–R3 present · highest category</span><strong>HIGH</strong></div>
+        <div class="section-title">Care steps done <small>*Sample choices</small></div>
+        <div class="care-list"><div class="care checked"><span class="check">✓</span>Common step 1*</div><div class="care"><span class="check"></span>Common step 2*</div></div>
+        <div class="care" style="margin-top:6px"><span class="check"></span>Other</div><div class="other-input">Type other step here (optional)</div>
+        <div class="review"><span>✓</span><span>Review the complete assessment on the next step. Current time is added when saved.</span></div>
+        <button class="save">Continue to review →</button><div class="time">No time entry needed</div>
+        <nav class="tabbar" aria-label="Assessment preview navigation"><span><i>⌂</i>Ward</span><span><i>＋</i>Assess</span><span><i>◷</i>Records</span><span><i>○</i>Me</span></nav>
+      </div>
+    </article>
+
+    <article class="design">
+      <header class="design-head"><p class="num">Concept 03 · Warm and spacious</p><h2>Roomy cards + bottom navigation</h2><p>Soft color, generous spacing, and the selected Concept 03 footer.</p></header>
+      <div class="phone warm" aria-label="Warm and spacious assessment preview">
+        <div class="top"><div class="brand"><span class="brand-icon">✳</span> Careday</div><div class="step"><span class="bubble">1</span> Assessment</div></div>
+        <h3 class="screen-title">Let’s check today</h3><p class="screen-sub">Cedar ward · Wednesday, 19 November</p>
+        <div class="patient"><div class="section-title" style="margin-top:0">Who are you assessing? <small>EDIT</small></div><div class="fields">
+          <div class="field"><label>Patient</label><strong>Mina Example</strong></div><div class="field"><label>Hospital no.</label><strong>DEMO-001</strong></div>
+          <div class="field"><label>Ward</label><strong>Cedar</strong></div><div class="field"><label>Bed</label><strong>01</strong></div>
+        </div></div>
+        <div class="section-title">Risk factors <small>Choose all that fit</small></div>
+        <div class="risk-list">
+          <div class="risk-item selected"><span class="check">✓</span><span class="risk-copy"><strong>R1</strong>Over 65 and has fallen before</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R2</strong>Confused, or awareness has changed</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R3</strong>Problem with balance or walking</span></div>
+          <div class="risk-item selected"><span class="check">✓</span><span class="risk-copy"><strong>R4</strong>Poor eyesight</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R5</strong>Medicines that raise fall risk</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R6</strong>Urgent or frequent toilet needs</span></div>
+          <div class="risk-item"><span class="check"></span><span class="risk-copy"><strong>R7</strong>Lines or devices attached</span></div>
+        </div>
+        <div class="risk-level"><span>Based on selected factors</span><strong>High risk</strong></div>
+        <div class="section-title">Care steps done <small>*Sample choices</small></div>
+        <div class="care-list"><div class="care checked"><span class="check">✓</span>Common step 1*</div><div class="care"><span class="check"></span>Common step 2*</div></div>
+        <div class="care" style="margin-top:6px"><span class="check"></span>Other</div><div class="other-input">Add a note for “Other” (optional)</div>
+        <div class="review"><span>✓</span><span>You’ll see every answer together before saving. Save time is filled in automatically.</span></div>
+        <button class="save">Review answers</button><div class="time">N. Nurse · Time recorded on save</div>
+        <nav class="tabbar" aria-label="Assessment preview navigation"><span><i>⌂</i>Overview</span><span><i>＋</i>Assess</span><span><i>◷</i>History</span><span><i>○</i>Profile</span></nav>
+      </div>
+    </article>
+  </section>
+  <p class="intro" style="margin-top:19px;font-size:11px">*“Common step 1” and “Common step 2” are visual placeholders, not clinical recommendations. The ward’s approved care-step labels still need to be supplied.</p>
+</main>
+</body>
+</html>
