@@ -8,8 +8,8 @@ Use made-up sample patients only in demos, screenshots, and development data. Do
 
 ## Users
 
-- **Ward nurse:** signs in, enters patient details, completes and saves a daily assessment.
-- **Head nurse:** reviews the ward’s assessment status for today.
+- **Ward nurse:** signs in, enters patient details, completes, reviews, and saves a daily assessment. Ward nurses do not get a saved-assessment correction control.
+- **Head nurse:** signs in, reviews the ward’s assessment status for today, and can correct saved assessments.
 
 ## Visual direction
 
@@ -18,13 +18,14 @@ Use made-up sample patients only in demos, screenshots, and development data. Do
 
 ## Nurse workflow
 
-1. Nurse signs in; the app uses the signed-in nurse’s name on the assessment.
+1. Show a sign-in page on app launch. The user enters a name and chooses Ward nurse or Head nurse; the app uses that local profile for the current session and remembers it in this browser for the next sign-in.
 2. Nurse enters ward, bed, date, patient name, and hospital number (HN) for the patient being assessed. The patient is entered each time; no patient roster was requested.
 3. Nurse ticks all applicable risk factors.
 4. App calculates and displays the risk level using the rules below.
-5. Nurse ticks any care steps done. Show 2–3 common care-step checkboxes once approved by ward nurses, plus **Other** with a text field for a nurse-entered step.
+5. Nurse ticks any care steps done: **Review medications**, **Check IV tubing**, **Monitor for changes**, and **Other** with a text field for a nurse-entered step.
 6. Before saving, show a review screen with all entered answers and the calculated risk level; the nurse can go back and correct them.
-7. On save, record the nurse’s name and automatically fill the assessment time with the current time. For a correction after saving, the nurse asks the head nurse to correct it.
+7. On save, record the nurse’s name and automatically fill the assessment time with the current time.
+8. For corrections, only the head nurse role can open a saved assessment. The correction review shows changed values in a distinct before/after color treatment before the head nurse confirms. Record the correcting head nurse’s name and reason.
 
 ## Assessment fields
 
@@ -42,7 +43,7 @@ Use made-up sample patients only in demos, screenshots, and development data. Do
   - **R6:** Urgent or frequent toilet needs
   - **R7:** Lines or devices attached
 - Risk level (calculated by the app; not manually selected)
-- Care steps done: 2–3 ward-approved checkbox items, plus **Other** and a text field
+- Care steps done: checkboxes for **Review medications**, **Check IV tubing**, and **Monitor for changes**, plus **Other** and a text field
 - Nurse name (from sign-in)
 - Assessment time (automatically filled with the current time on save)
 
@@ -76,11 +77,10 @@ These are invented examples and must never be replaced with real patient data in
 
 ## Questions for the nurses
 
-1. What are the 2–3 common care steps that should appear as checkboxes? The ward requested common steps plus an **Other** free-text option, but the actual steps were not provided.
-2. How should the app know the full list of patients expected on the ward today so it can show who has not been assessed? The current choice to use assessment entries alone cannot identify patients with no entry.
-3. Should date default to the phone’s current date, and can nurses record or amend an assessment for a different date?
-4. Which user roles need sign-in, and how is the head nurse’s ward view limited to the correct ward?
+1. How should the app know the full list of patients expected on the ward today so it can show who has not been assessed? The current choice to use assessment entries alone cannot identify patients with no entry.
+2. Should date default to the phone’s current date, and can nurses record or amend an assessment for a different date?
+3. What secure authentication and ward-access method should replace the local demo role selector before real patient data is used?
 
 ## Scope boundary
 
-This document describes the requested app and open questions only. No app has been built. Clinical content, including the care-step labels and roster workflow, needs ward confirmation before implementation.
+The plain HTML app is in `index.html`; it stores data in the current browser only. Its sign-in page selects a local name and role to control which correction controls are shown, but it is not secure authentication or access control. The requested care-step labels are **Review medications**, **Check IV tubing**, and **Monitor for changes**, plus **Other**. The roster workflow and remaining open items need ward confirmation.
